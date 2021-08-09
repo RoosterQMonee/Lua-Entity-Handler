@@ -1,0 +1,176 @@
+--// Config
+local WaveWaitTime = 15
+local NumOfWaves = 10
+local SpawnWaitTime = 1
+
+--// Locals
+local EntityData = require(game.ReplicatedStorage.Entity_Data)
+local WaveData = require(game.ReplicatedStorage.Wave_Data)
+
+--// Entities
+local Basic = game.Workspace.EntityList.Tonk
+local SpeedE = game.Workspace.EntityList.SpeedyBoi
+local Hidden = game.Workspace.EntityList.Hidden
+local BigBoi = game.Workspace.EntityList.BigBoi
+
+--// Entity Bosses
+local SmallBoss = game.Workspace.EntityList.SmallBoss
+local MegaBoss = game.Workspace.EntityList.MegaBoss
+local SpeedBoss = game.Workspace.EntityList.SpeedBoss
+local HiddenBoss = game.Workspace.EntityList.HiddenBoss
+local BigBoss = game.Workspace.EntityList.BigBoss
+local SlowBoss = game.Workspace.EntityList.SlowBoss
+
+--// Shortened Names
+local TS = game:GetService("TweenService")
+local P = workspace.Node
+local W = script.Wave.Value
+
+--// Variables
+local wave = instance.new("IntValue")
+local Speed = .5
+local RotationSpeed = .2
+
+--// Declare Wave
+wave.Parent = script
+--// Spawning
+function SpawnTankEnemy()
+    local Entity = Basic:Clone()
+    Entity.CFrame = P.CFrame
+    Entity.Parent = workspace.Enemies
+end
+
+function SpawnSpeedEnemy()
+    local Entity = SpeedE:Clone()
+    Entity.CFrame = P.CFrame
+    Entity.Parent = workspace.Enemies
+end
+
+function SpawnSmallBossEnemy()
+    local Entity = SmallBoss:Clone()
+    Entity.CFrame = P.CFrame
+    Entity.Parent = workspace.Enemies
+end
+
+function SpawnBossEnemy()
+    local Entity = BigBoss:Clone()
+    Entity.CFrame = P.CFrame
+    Entity.Parent = workspace.Enemies
+end
+
+function SpawnHiddenBossEnemy()
+    local Entity = HiddenBoss:Clone()
+    Entity.CFrame = P.CFrame
+    Entity.Parent = workspace.Enemies
+end
+
+function SpawnSlowBossEnemy()
+    local Entity = SlowBoss:Clone()
+    Entity.CFrame = P.CFrame
+    Entity.Parent = workspace.Enemies
+end
+
+function SpawnMegaBossEnemy()
+    local Entity = MegaBoss:Clone()
+    Entity.CFrame = P.CFrame
+    Entity.Parent = workspace.Enemies
+end
+
+function SpawnHiddenEnemy()
+    local Entity = Hidden:Clone()
+    Entity.CFrame = P.CFrame
+    Entity.Parent = workspace.Enemies
+end
+
+function SpawnSpeedBossEnemy()
+    local Entity = SpeedBoss:Clone()
+    Entity.CFrame = P.CFrame
+    Entity.Parent = workspace.Enemies
+end
+
+function SpawnBigBoiEnemy()
+    local Entity = BigBoi:Clone()
+    Entity.CFrame = P.CFrame
+    Entity.Parent = workspace.Enemies
+end
+--// System
+function MoveEnemy(Entity)
+    local ReachedEnd = false
+    local Note = workspace.Node
+    local EntitySpeed = EntityData.Data[Entity.Name]["Speed"]
+    local EntityHealth = EntityData.Data[Entity.Name]["Health"]
+    while ReachedEnd == false do
+        local NextNodes = Note:GetChildren()
+        if (#NextNodes > 0) then
+            Note = NextNodes[math.random(1,#NextNodes)]
+            local ParentNode = Note.Parent
+            local Distance = (ParentNode.Position-Note.Position).Magnitude
+            local CFrameData = CFrame.new(ParentNode.Position,Note.Position)
+            local RotationTween = TS:Create(Entity, TweenInfo.new(RotationSpeed,Enum.EasingStyle.Linear), {CFrame = CFrameData})
+            RotationTween:Play()
+            RotationTween.Completed:Wait()
+            local MovementTween = TS:Create(Entity, TweenInfo.new(Distance*Speed*EntitySpeed,Enum.EasingStyle.Linear), {Position = Note.Position})
+            MovementTween:Play()
+            MovementTween.Completed:Wait()
+        else
+            ReachedEnd = true
+            Entity:Destroy()
+            workspace.Extras.PlayerBase.Health.Value -= EntityHealth
+        end
+    end
+end
+
+game.workspace.Enemies.ChildAdded:Connect(function(Entity)
+    MoveEnemy(Entity)
+end)
+--// Wave System
+local CurrentWave = 1
+
+for i = 1, NumOfWaves do
+while W == CurrentWave do
+    for i = 1, WaveData.Data["Wave"..CurrentWave]["TankCount"] do
+        SpawnTankEnemy()
+        wait(SpawnWaitTime)
+    end
+    for i = 1, WaveData.Data["Wave"..CurrentWave]["SpeedCount"] do
+        SpawnSpeedEnemy()
+            wait(SpawnWaitTime)
+    end
+        for i = 1, WaveData.Data["Wave"..CurrentWave]["SmallBossCount"] do
+            SpawnSmallBossEnemy()
+            wait(SpawnWaitTime)
+        end
+        for i = 1, WaveData.Data["Wave"..CurrentWave]["BigBossCount"] do
+            SpawnBossEnemy()
+            wait(SpawnWaitTime)
+        end
+        for i = 1, WaveData.Data["Wave"..CurrentWave]["SpeedBossCount"] do
+            SpawnSpeedBossEnemy()
+            wait(SpawnWaitTime)
+        end
+        for i = 1, WaveData.Data["Wave"..CurrentWave]["BigBoiCount"] do
+            SpawnBigBoiEnemy()
+            wait(SpawnWaitTime)
+        end
+        for i = 1, WaveData.Data["Wave"..CurrentWave]["HiddenCount"] do
+            SpawnHiddenEnemy()
+            wait(SpawnWaitTime)
+        end
+        for i = 1, WaveData.Data["Wave"..CurrentWave]["HiddenBossCount"] do
+            SpawnHiddenBossEnemy()
+            wait(SpawnWaitTime)
+        end
+        for i = 1, WaveData.Data["Wave"..CurrentWave]["MegaBossCount"] do
+            SpawnMegaBossEnemy()
+            wait(SpawnWaitTime)
+        end
+        for i = 1, WaveData.Data["Wave"..CurrentWave]["SlowBossCount"] do
+            SpawnSlowBossEnemy()
+            wait(SpawnWaitTime)
+        end
+
+    W = W + 1
+    CurrentWave = CurrentWave + 1
+    wait(WaveWaitTime)
+    end
+end
